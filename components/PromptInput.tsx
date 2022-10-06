@@ -1,8 +1,14 @@
 import React, { Component, useState } from "react";
 import axios from "axios";
-import { useCodeEditorContext } from "../context/CodeEditorContext";
+import {
+    CodeEditorContextType,
+    useCodeEditorContext,
+} from "../context/CodeEditorContext";
 import { track } from "../util/tracking";
-import { usePromptConversationContext } from "../context/PromptConversationContext";
+import {
+    PromptConversationContextType,
+    usePromptConversationContext,
+} from "../context/PromptConversationContext";
 
 export default function PromptInput() {
     const {
@@ -12,8 +18,9 @@ export default function PromptInput() {
         setCurrentCodeSelection,
         editor,
         setEditor,
-    } = useCodeEditorContext();
-    const [conversation, setConversation] = usePromptConversationContext();
+    } = useCodeEditorContext() as CodeEditorContextType;
+    const { conversation, setConversation } =
+        usePromptConversationContext() as PromptConversationContextType;
     const axiosInstance = axios.create({
         baseURL: "http://localhost:3000/api/codact/",
         timeout: 10000,

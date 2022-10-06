@@ -1,5 +1,8 @@
 import React from "react";
-import { useCodeEditorContext } from "../context/CodeEditorContext";
+import {
+    CodeEditorContextType,
+    useCodeEditorContext,
+} from "../context/CodeEditorContext";
 import Editor, { Monaco } from "@monaco-editor/react";
 
 export default function CodeEditor() {
@@ -10,7 +13,7 @@ export default function CodeEditor() {
         setCurrentCodeSelection,
         editor,
         setEditor,
-    } = useCodeEditorContext();
+    } = useCodeEditorContext() as CodeEditorContextType;
 
     const handleEditorChange = (newValue: any, e: any) => {
         console.log("Chart editor, onChange event: ", e);
