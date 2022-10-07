@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, forwardRef } from "react";
+import React, { forwardRef } from "react";
 import styles from "../styles/ConversationDisplay.module.scss";
 import {
+    Conversation,
     PromptConversationContextType,
     usePromptConversationContext,
 } from "../context/PromptConversationContext";
@@ -9,15 +10,30 @@ import PromptInput from "./PromptInput";
 
 const ConversationDisplay = forwardRef((props: any, ref: any) => {
     const editorRef = ref;
-    const { conversation, setConversation } =
-        usePromptConversationContext() as PromptConversationContextType;
-    const orderedConversationKeys = Object.keys(conversation).sort();
+    const {
+        conversation,
+        setConversation,
+        currentMessageId,
+        setCurrentMessageId,
+    } = usePromptConversationContext() as PromptConversationContextType;
+    const orderedConversationIds = (): string[] => {
+        let orderedConversationArray = [];
+        let firstMessageFound = false;
+        let messageId = currentMessageId;
+        while (!firstMessageFound) {
+            orderedConversationArray.unshift(messageId);
+            if (conversation[messageId]?.previousMessageId !== undefined) {
+                messageId = conversation[messageId].previousMessageId!;
+            } else firstMessageFound = true;
+        }
+        return orderedConversationArray;
+    };
 
     return (
         <div className={styles.conversationDisplay}>
             <div className={styles.chatDisplay}>
                 <ul>
-                    {orderedConversationKeys.map((key) => {
+                    {orderedConversationIds().map((key) => {
                         const convo = conversation[key];
                         return <ConvoListItem convo={convo} />;
                     })}

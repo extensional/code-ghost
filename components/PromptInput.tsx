@@ -1,4 +1,5 @@
-import React, { Component, useEffect, useState, useRef } from "react";
+import React, { useState } from "react";
+import { uuid } from "uuidv4";
 import axios from "axios";
 import {
     CodeEditorContextType,
@@ -9,6 +10,7 @@ import {
     PromptConversationContextType,
     usePromptConversationContext,
 } from "../context/PromptConversationContext";
+import styles from "../styles/PromptInput.module.scss";
 
 const PromptInput = React.forwardRef((props: any, ref: any) => {
     const editorRef = ref;
@@ -20,8 +22,12 @@ const PromptInput = React.forwardRef((props: any, ref: any) => {
         currentCodeSelectionRange,
         setCurrentCodeSelectionRange,
     } = useCodeEditorContext() as CodeEditorContextType;
-    const { conversation, setConversation } =
-        usePromptConversationContext() as PromptConversationContextType;
+    const {
+        conversation,
+        setConversation,
+        currentMessageId,
+        setCurrentMessageId,
+    } = usePromptConversationContext() as PromptConversationContextType;
     const axiosInstance = axios.create({
         baseURL: "http://localhost:3000/api/",
         timeout: 10000,
@@ -40,13 +46,21 @@ const PromptInput = React.forwardRef((props: any, ref: any) => {
     };
 
     const onSubmit = async (e: any) => {
+        let newMessageId: string;
+        let coversationObj: any;
         e.preventDefault();
         const textInSelection = currentCodeSelection;
         const textInDoc = currentCode;
-        setConversation({
-            ...conversation,
-            time: { user: "human", message: question },
-        });
+        newMessageId = uuid();
+        coversationObj = { ...conversation };
+        coversationObj[newMessageId] = {
+            previousMessageId: currentMessageId,
+            user: "human",
+            message: question,
+        };
+        setConversation(coversationObj);
+        setCurrentMessageId(newMessageId);
+
         setPrompt("");
         let response = await axiosInstance.post("/codact", {
             url: "prompt/question",
@@ -74,11 +88,15 @@ const PromptInput = React.forwardRef((props: any, ref: any) => {
                 doc: textInDoc,
             });
             setPrompt("Codact: How else can I help you?");
-
-            setConversation({
-                ...conversation,
-                time: { user: "ai", message: aout },
-            });
+            newMessageId = uuid();
+            coversationObj = { ...conversation };
+            coversationObj[newMessageId] = {
+                previousMessageId: currentMessageId,
+                user: "ai",
+                message: aout,
+            };
+            setConversation(coversationObj);
+            setCurrentMessageId(newMessageId);
             return;
         }
         let res = await axiosInstance.post("/codact", {
@@ -96,7 +114,6 @@ const PromptInput = React.forwardRef((props: any, ref: any) => {
         });
 
         setPrompt("Codact: How else can I help you?");
-        console.log(editorRef);
         await editorRef.current.getModel().pushEditOperations(
             [],
             [
@@ -107,26 +124,30 @@ const PromptInput = React.forwardRef((props: any, ref: any) => {
             ]
         );
 
-        setConversation({
-            ...conversation,
-            time: {
-                user: "ai",
-                message: aout,
-                code: currentCode,
-                link: "INSERT LINK HERE",
-            },
-        });
+        newMessageId = uuid();
+        coversationObj = { ...conversation };
+        coversationObj[newMessageId] = {
+            user: "ai",
+            message: "I generated the code you asked for!",
+            code: currentCode,
+            link: "INSERT LINK HERE",
+        };
+        setConversation(coversationObj);
+        setCurrentMessageId(newMessageId);
     };
 
     return (
-        <form onSubmit={onSubmit}>
+        <form className={styles.promptInputForm} onSubmit={onSubmit}>
             <input
+                className={styles.promptInput}
                 type="text"
                 placeholder={prompt}
                 onChange={onChange}
                 value={question}
             />
-            <button type="submit">Submit</button>
+            <button className={styles.promptSubmit} type="submit">
+                Submit
+            </button>
         </form>
     );
 });

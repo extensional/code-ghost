@@ -2,3 +2,21 @@
     padding: 0 2rem;
   }
   
+.outputDisplay {
+    background-color: green;
+    flex: 1;
+}
+
+.conversation { 
+    background-color: red;
+}
+
+.codeEditor {
+    background-color: purple;
+    flex: 1;
+}
+
+.topContainer {
+    display: flex;
+    flex-direction: row;
+}

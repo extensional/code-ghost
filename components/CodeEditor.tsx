@@ -33,6 +33,7 @@ const CodeEditor = forwardRef((props: any, ref: any) => {
 
     const options = {
         selectOnLineNumbers: true,
+        readOnly: true,
     };
 
     return (

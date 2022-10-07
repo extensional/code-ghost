@@ -1,4 +1,9 @@
 .chatDisplay{
+    ul{
+        list-style-type: none;
+        display: flex;
+        flex-flow: column nowrap;
+    }
     .aiConvo {
         text-align: left;
     }
