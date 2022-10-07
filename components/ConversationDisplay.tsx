@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, forwardRef } from "react";
 import styles from "../styles/ConversationDisplay.module.scss";
 import {
     PromptConversationContextType,
@@ -7,7 +7,8 @@ import {
 import ConvoListItem from "./ConvoListItem";
 import PromptInput from "./PromptInput";
 
-export default function ConversationDisplay() {
+const ConversationDisplay = forwardRef((props: any, ref: any) => {
+    const editorRef = ref;
     const { conversation, setConversation } =
         usePromptConversationContext() as PromptConversationContextType;
     const orderedConversationKeys = Object.keys(conversation).sort();
@@ -22,7 +23,9 @@ export default function ConversationDisplay() {
                     })}
                 </ul>
             </div>
-            <PromptInput />
+            <PromptInput ref={editorRef} />
         </div>
     );
-}
+});
+
+export default ConversationDisplay;

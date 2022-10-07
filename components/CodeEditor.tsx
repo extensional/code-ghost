@@ -1,31 +1,34 @@
-import React from "react";
+import React, { forwardRef, useRef } from "react";
 import {
     CodeEditorContextType,
     useCodeEditorContext,
 } from "../context/CodeEditorContext";
 import Editor, { Monaco } from "@monaco-editor/react";
 
-export default function CodeEditor() {
+const CodeEditor = forwardRef((props: any, ref: any) => {
     const {
         currentCode,
         setCurrentCode,
         currentCodeSelection,
         setCurrentCodeSelection,
-        editor,
-        setEditor,
+        currentCodeSelectionRange,
+        setCurrentCodeSelectionRange,
     } = useCodeEditorContext() as CodeEditorContextType;
 
     const handleEditorChange = (newValue: any, e: any) => {
-        console.log("Chart editor, onChange event: ", e);
         setCurrentCode(newValue);
     };
 
-    const editorDidMount = (editor: any, monaco: any) => {
-        console.log("Chart editor did mount.");
-        editor.focus();
-    };
     function handleEditorDidMount(mEditor: any, monaco: any) {
-        setEditor(mEditor);
+        ref.current = mEditor;
+        mEditor.focus();
+        mEditor.onDidChangeCursorSelection((e: any) => {
+            setCurrentCodeSelectionRange(e.selection);
+            const codeSelection = ref
+                .current!.getModel()
+                .getValueInRange(e.selection);
+            setCurrentCodeSelection(codeSelection);
+        });
     }
 
     const options = {
@@ -42,8 +45,10 @@ export default function CodeEditor() {
                 value={currentCode}
                 options={options}
                 onChange={handleEditorChange}
-                onMount={editorDidMount}
+                onMount={handleEditorDidMount}
             />
         </div>
     );
-}
+});
+
+export default CodeEditor;

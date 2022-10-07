@@ -7,13 +7,13 @@ export interface Conversation {
 export type ConvoInstance = {
     user: string;
     message: string;
-    code: string | undefined;
-    link: string | undefined;
+    code?: string;
+    link?: string;
 };
 
 export type PromptConversationContextType = {
     conversation: Conversation;
-    setConversation: (conversation: {}) => void;
+    setConversation: (conversation: Conversation) => void;
 };
 
 // Create Context Object

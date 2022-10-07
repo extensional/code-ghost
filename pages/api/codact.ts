@@ -17,12 +17,14 @@ export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse<Data>
 ) {
+    const body = req.body;
     if (req.method === "POST") {
-        const response = await axiosInstance.post(req.url!, { ...req.body! });
-        res.status(response.status).json({ ...response.data });
+        const response = await axiosInstance.post(body.url!, { ...body! });
+        console.log(response.data);
+        res.status(response.status).json(response.data);
     }
     if (req.method === "GET") {
-        const response = await axiosInstance.get(req.url!);
+        const response = await axiosInstance.get(body.url!);
         res.status(response.status).json({ ...response.data });
     }
 }

@@ -1,4 +1,4 @@
-import React, { Component, useState } from "react";
+import React, { Component, useEffect, useState, useRef } from "react";
 import axios from "axios";
 import {
     CodeEditorContextType,
@@ -10,19 +10,20 @@ import {
     usePromptConversationContext,
 } from "../context/PromptConversationContext";
 
-export default function PromptInput() {
+const PromptInput = React.forwardRef((props: any, ref: any) => {
+    const editorRef = ref;
     const {
         currentCode,
         setCurrentCode,
         currentCodeSelection,
         setCurrentCodeSelection,
-        editor,
-        setEditor,
+        currentCodeSelectionRange,
+        setCurrentCodeSelectionRange,
     } = useCodeEditorContext() as CodeEditorContextType;
     const { conversation, setConversation } =
         usePromptConversationContext() as PromptConversationContextType;
     const axiosInstance = axios.create({
-        baseURL: "http://localhost:3000/api/codact/",
+        baseURL: "http://localhost:3000/api/",
         timeout: 10000,
         headers: {
             "Content-Type": "application/json",
@@ -42,21 +43,24 @@ export default function PromptInput() {
         e.preventDefault();
         const textInSelection = currentCodeSelection;
         const textInDoc = currentCode;
-        setConversation({ user: "human", message: question });
+        setConversation({
+            ...conversation,
+            time: { user: "human", message: question },
+        });
         setPrompt("");
-        let response = await axiosInstance.post("/prompt/question", {
+        let response = await axiosInstance.post("/codact", {
+            url: "prompt/question",
             question,
         });
 
-        const intermede = await response.data;
-        const is_info = intermede == "true";
-
+        const is_info = await response.data;
         track("query.answer", {
             question: question,
             answer: "" + is_info,
         });
         if (is_info) {
-            let response = await axiosInstance.post("/prompt/answer", {
+            let response = await axiosInstance.post("/codact", {
+                url: "/prompt/answer",
                 textInDoc,
                 textInSelection,
                 question,
@@ -71,23 +75,14 @@ export default function PromptInput() {
             });
             setPrompt("Codact: How else can I help you?");
 
-            setConversation({ user: "ai", message: aout });
-
-            // vscode.window
-            //     .showInformationMessage(
-            //         "Codact: " + aout,
-            //         ...["Useful", "Needs Improvement"]
-            //     )
-            //     .then((feedback) => {
-            //         mixpanel.track("query.info.feedback", {
-            //             question: question,
-            //             info: aout,
-            //             feedback: feedback,
-            //         });
-            //     });
+            setConversation({
+                ...conversation,
+                time: { user: "ai", message: aout },
+            });
             return;
         }
-        let res = await axiosInstance.post("/prompt/completion", {
+        let res = await axiosInstance.post("/codact", {
+            url: "/prompt/completion",
             textInDoc,
             textInSelection,
             question,
@@ -101,31 +96,26 @@ export default function PromptInput() {
         });
 
         setPrompt("Codact: How else can I help you?");
+        console.log(editorRef);
+        await editorRef.current.getModel().pushEditOperations(
+            [],
+            [
+                {
+                    range: currentCodeSelectionRange,
+                    text: aout[0],
+                },
+            ]
+        );
 
-        await editor.edit((editBuilder: any) => {
-            if (aout != undefined)
-                editBuilder.replace(editor.selection, aout[0]);
-        });
-        // TODO James
-        // Add link below
         setConversation({
-            user: "ai",
-            message: aout,
-            code: currentCode,
-            link: "INSERT LINK HERE",
+            ...conversation,
+            time: {
+                user: "ai",
+                message: aout,
+                code: currentCode,
+                link: "INSERT LINK HERE",
+            },
         });
-        // vscode.window
-        //     .showInformationMessage(
-        //         "Codact: was this what you had in mind?",
-        //         ...["Yes", "No"]
-        //     )
-        //     .then((feedback) => {
-        //         mixpanel.track("query.code.feedback", {
-        //             question: question,
-        //             info: aout,
-        //             feedback: feedback,
-        //         });
-        //     });
     };
 
     return (
@@ -139,4 +129,6 @@ export default function PromptInput() {
             <button type="submit">Submit</button>
         </form>
     );
-}
+});
+
+export default PromptInput;

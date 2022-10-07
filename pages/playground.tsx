@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
+import { useState, useRef } from "react";
 import Head from "next/head";
-import Image from "next/image";
 import CodeEditor from "../components/CodeEditor";
 import ConversationDisplay from "../components/ConversationDisplay";
 import { CodeEditorContextProvider } from "../context/CodeEditorContext";
@@ -8,6 +8,14 @@ import { PromptConversationContextProvider } from "../context/PromptConversation
 import styles from "../styles/Playground.module.scss";
 
 const Playground: NextPage = () => {
+    let editorRef = useRef(null);
+    // const [refLoaded, setRefLoaded] = useState(false);
+    // function setRef(ref: any) {
+    //     console.log("setting the ref", ref, editorRef);
+    //     editorRef = ref;
+    //     console.log(editorRef, "this is the editor ref");
+    //     setRefLoaded(true);
+    // }
     return (
         <CodeEditorContextProvider>
             <PromptConversationContextProvider>
@@ -22,8 +30,8 @@ const Playground: NextPage = () => {
                     </Head>
 
                     <main className={styles.main}>
-                        <CodeEditor />
-                        <ConversationDisplay />
+                        <CodeEditor ref={editorRef} />
+                        <ConversationDisplay ref={editorRef} />
                     </main>
 
                     <footer className={styles.footer}></footer>

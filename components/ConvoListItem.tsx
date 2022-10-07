@@ -10,6 +10,7 @@ export default function ConvoItem(props: ConvoItemProps) {
     return (
         <li
             className={convo.user === "ai" ? styles.aiConvo : styles.humanConvo}
+            key={convo.message}
         >
             <a href={convo.link}>{convo.message}</a>
         </li>

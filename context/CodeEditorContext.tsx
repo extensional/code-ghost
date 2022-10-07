@@ -5,8 +5,8 @@ export type CodeEditorContextType = {
     setCurrentCode: (currentCode: string) => void;
     currentCodeSelection: string;
     setCurrentCodeSelection: (currentCodeSelection: string) => void;
-    editor: any;
-    setEditor: (editor: any) => void;
+    currentCodeSelectionRange: any;
+    setCurrentCodeSelectionRange: (currentCodeSelectionRange: any) => void;
 };
 
 // Create Context Object
@@ -18,7 +18,9 @@ export const CodeEditorContext = createContext<CodeEditorContextType | null>(
 export const CodeEditorContextProvider = (props: any) => {
     const [currentCode, setCurrentCode] = useState("");
     const [currentCodeSelection, setCurrentCodeSelection] = useState("");
-    const [editor, setEditor] = useState("");
+    const [currentCodeSelectionRange, setCurrentCodeSelectionRange] = useState(
+        {}
+    );
     return (
         <CodeEditorContext.Provider
             value={{
@@ -26,8 +28,8 @@ export const CodeEditorContextProvider = (props: any) => {
                 setCurrentCode,
                 currentCodeSelection,
                 setCurrentCodeSelection,
-                editor,
-                setEditor,
+                currentCodeSelectionRange,
+                setCurrentCodeSelectionRange,
             }}
         >
             {props.children}

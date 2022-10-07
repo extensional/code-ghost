@@ -8,12 +8,14 @@ export function track(
     eventName: string,
     properties?: { [key: string]: string }
 ) {
+    const session = "browser";
+    const userId = "1";
     const props =
         properties != undefined
             ? properties
-            : { session: session, user: UserID };
+            : { session: session, user: userId };
     props["session"] = session;
-    props["user"] = UserID;
+    props["user"] = userId;
 
     try {
         mixpanel.track(eventName, props);
